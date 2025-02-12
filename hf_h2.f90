@@ -1,4 +1,4 @@
-
+! simpified diagonalization for sencond order matrix
 subroutine QR(F,S,C,e)
 real , dimension(2,2) :: F
 real , dimension(2,2) :: C
@@ -16,7 +16,7 @@ e(1)=(F(1,1)+F(2,2)-((F(1,1)+F(2,2))**2-4*(F(1,1)*F(2,2)-F(1,2)*F(2,1)))**0.5)/2
  RETURN 
  end
 
-
+! calculation of 2-electron integral
  subroutine pair(A,G,R,ge)
  REAL , DIMENSION(3,2) :: A
  REAL , DIMENSION(3,2) :: G
@@ -74,7 +74,7 @@ e(1)=(F(1,1)+F(2,2)-((F(1,1)+F(2,2))**2-4*(F(1,1)*F(2,2)-F(1,2)*F(2,1)))**0.5)/2
  RETURN 
  end
 
-
+! form density matrix from C
  subroutine density(C,P)
  REAL , DIMENSION(2,2) :: C
  REAL , DIMENSION(2,2) :: P
@@ -89,7 +89,8 @@ e(1)=(F(1,1)+F(2,2)-((F(1,1)+F(2,2))**2-4*(F(1,1)*F(2,2)-F(1,2)*F(2,1)))**0.5)/2
  end  do
  RETURN
  end
-
+ 
+! main program  
 program hf 
  REAL , dimension(2,2) :: T, S, Vn, Hc, Sm, Fm, F , C, P
  real , dimension(2,2,2,2) :: ge
@@ -98,7 +99,7 @@ program hf
  real pi,E
 integer I,M,J,K,L,o,u,x,w
 
-
+! parameter for sto-3g of H atom
  G(1,1) = 0.444635
  G(2,1) = 0.535328
  G(3,1) = 0.154329
@@ -113,7 +114,7 @@ integer I,M,J,K,L,o,u,x,w
  A(2,2) = 0.623913
  A(3,2) = 3.425250
 
-
+! location of two H atom
  R(1,1)=0
  R(2,1)=0
  R(3,1)=1.4
@@ -131,6 +132,7 @@ integer I,M,J,K,L,o,u,x,w
  epq=0
  E=0
 
+! calculation of the overlap matrix S, kinetic energy matrix T and nuclear attraction matrix Vn
 DO I=1,2
  DO J=1,2
   DO M=1,3
@@ -177,16 +179,16 @@ DO I=1,2
  END DO
 END DO
 
-
+! inverse matrix of the overlap matrix
 Sm(1,1)=S(2,2)/((S(1,1)*S(2,2))-(S(1,2)*S(2,1)))
 Sm(2,2)=S(1,1)/((S(1,1)*S(2,2))-(S(1,2)*S(2,1)))
 Sm(1,2)=-S(1,2)/((S(1,1)*S(2,2))-(S(1,2)*S(2,1)))
 Sm(2,1)=-S(2,1)/((S(1,1)*S(2,2))-(S(1,2)*S(2,1)))
 
-
+! define Hcoll
 Hc=T+Vn
 
-
+! use the Hcoll as the first guess
 F=Hc
 
 Fm=MATMUL(Sm,Hc)
@@ -197,7 +199,7 @@ call pair(A,G,R,ge)
 
 CALL density(C,P)
 
-
+!SCF 
 DO WHILE( abs(epq(1)-ep(1))>0.000001 .or. abs(epq(2)-ep(2))>0.000001 )
 epq=ep
 F=Hc
@@ -216,20 +218,22 @@ call density(C,P)
 end DO
 E=0
 
+! whole energy
 do o=1,2
  do u=1,2
   E=E+0.5*P(o,u)*(Hc(o,u)+F(o,u))
   end do
  end do 
-  
+
+! don’t forget nuclear rejection under the B-O approximation 
 E=E+1/R(3,1)
   
-
-print*,"成键轨道的组合系数",C(1,1),C(2,1)
-print*,"成键轨道轨道能量(单位hartree)",ep(1)
-print*,"反键轨道的组合系数",C(1,2),C(2,2)
-print*,"反键轨道轨道能量(单位hartree)",ep(2)
-print*,"体系总能量(单位hartree)",E
+! Output results
+print*,"Combination coefficient of bonding orbitals ",C(1,1),C(2,1)
+print*,"Orbital energy of bonding orbitals(hartree) ",ep(1)
+print*,"Combination coefficient of anti-bonding orbitals ",C(1,2),C(2,2)
+print*,"Orbital energy of anti-bonding orbitals(hartree) ",ep(2)
+print*,"total energy(hartree) ",E
 END program
 
 
