@@ -1,4 +1,4 @@
-! simpified diagonalization for sencond order matrix
+! simpified diagonalization for sencond-order matrix
 subroutine QR(F,S,C,e)
 real , dimension(2,2) :: F
 real , dimension(2,2) :: C
